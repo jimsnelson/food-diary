@@ -3,44 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiteLog</title>
+    <title>BiteLog Pro</title>
     <style>
-        :root { --primary: #4CAF50; --bg: #f4f7f6; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        :root { --primary: #4CAF50; --bg: #f4f7f6; --danger: #ff4d4d; --accent: #673AB7; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
         .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h2 { margin-top: 0; color: #333; font-size: 1.2rem; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .entry { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .entry-info { display: flex; flex-direction: column; }
-        .entry-name { font-weight: bold; }
-        .entry-meta { font-size: 0.8rem; color: #777; }
-        .entry-cal { font-weight: bold; color: var(--primary); }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        
+        /* Specific Button Styling */
+        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn-clear { width: 100%; background: #999; color: white; border: none; margin-top: 15px; font-size: 14px; padding: 8px; border-radius: 8px; cursor: pointer; }
+        
+        /* Symptom Sections */
+        .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+        .symptom-item { display: flex; align-items: center; font-size: 14px; background: #f9f9f9; padding: 8px; border-radius: 5px; border: 1px solid #eee; }
+        .symptom-item input { width: auto; margin-right: 8px; margin-top: 0; margin-bottom: 0; }
+        
+        .severity-box { background: #eee; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .severity-label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        
+        /* Entry Styling */
+        .entry { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .entry-top { display: flex; justify-content: space-between; align-items: center; }
+        .entry-name { font-weight: bold; font-size: 1.1rem; }
+        .entry-meta { font-size: 0.85rem; color: #666; }
+        
+        /* Small Delete Button Fix */
+        .del-btn { 
+            width: auto; /* Overrides global width if any */
+            background: white;
+            color: var(--danger); 
+            border: 1px solid var(--danger); 
+            padding: 6px 10px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            cursor: pointer;
+            flex-shrink: 0; /* Prevents it from squishing */
+        }
+        
+        .symptom-tag { font-size: 0.75rem; background: #e1bee7; color: #4a148c; padding: 3px 8px; border-radius: 12px; margin-right: 5px; margin-top: 5px; display: inline-block; border: 1px solid #ce93d8; }
+        .severity-tag { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .entry-notes { font-size: 0.85rem; font-style: italic; color: #555; background: #fffde7; padding: 8px 10px; border-radius: 5px; margin-top: 8px; display: block; border-left: 3px solid #fdd835; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>🍎 Log a Meal</h2>
-        <input type="text" id="foodName" placeholder="What did you eat?">
-        <input type="number" id="calories" placeholder="Calories (approx)">
+        <h2>🍎 Log Meal & Health</h2>
+        <input type="text" id="foodName" placeholder="Food/Drink Name">
+        
+        <label style="font-size: 0.8rem; color: #666; margin-left: 5px;">Calories</label>
+        <input type="number" id="calories" placeholder="Calories" value="0">
+        
         <select id="mealType">
             <option value="Breakfast">Breakfast</option>
             <option value="Lunch">Lunch</option>
             <option value="Dinner">Dinner</option>
             <option value="Snack">Snack</option>
         </select>
-        <button onclick="addEntry()">Add Entry</button>
+
+        <p style="margin: 15px 0 5px; font-weight: bold;">Symptoms</p>
+        <div class="symptom-grid" id="symptomBox">
+            <label class="symptom-item"><input type="checkbox" value="Tummy Issues"> Tummy</label>
+            <label class="symptom-item"><input type="checkbox" value="Headache"> Headache</label>
+            <label class="symptom-item"><input type="checkbox" value="Nausea"> Nausea</label>
+            <label class="symptom-item"><input type="checkbox" value="Fatigue"> Fatigue</label>
+        </div>
+
+        <div class="severity-box">
+            <div class="severity-label">
+                <span>Severity</span>
+                <span id="sevValue">1</span>
+            </div>
+            <input type="range" id="severity" min="1" max="10" value="1" oninput="document.getElementById('sevValue').innerText = this.value">
+        </div>
+
+        <textarea id="notes" placeholder="Notes (e.g. ingredients or feelings...)" rows="2"></textarea>
+
+        <button class="btn-main" onclick="addEntry()">Add to Diary</button>
     </div>
 
     <div class="card">
-        <h2>📅 Today's Log</h2>
+        <h2>📅 Log Entries</h2>
         <div id="logList"></div>
         <hr>
-        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem;">
             <span>Total Calories:</span>
             <span id="totalCals">0</span>
         </div>
+        <button class="btn-clear" onclick="clearAll()">Clear All Data</button>
     </div>
 
     <script>
@@ -53,14 +106,24 @@
             let total = 0;
 
             diary.forEach((item, index) => {
-                total += parseInt(item.calories);
+                total += parseInt(item.calories || 0);
+                
+                let symptomHtml = (item.symptoms || []).map(s => `<span class="symptom-tag">${s}</span>`).join('');
+                if(item.symptoms && item.symptoms.length > 0 && item.severity > 1) {
+                    symptomHtml += `<span class="symptom-tag severity-tag">Sev: ${item.severity}/10</span>`;
+                }
+
                 list.innerHTML += `
                     <div class="entry">
-                        <div class="entry-info">
-                            <span class="entry-name">${item.name}</span>
-                            <span class="entry-meta">${item.type}</span>
+                        <div class="entry-top">
+                            <div>
+                                <span class="entry-name">${item.name}</span><br>
+                                <span class="entry-meta">${item.type} • ${item.calories} kcal</span>
+                            </div>
+                            <button class="del-btn" onclick="deleteEntry(${index})">Delete</button>
                         </div>
-                        <span class="entry-cal">${item.calories} kcal</span>
+                        <div>${symptomHtml}</div>
+                        ${item.notes ? `<div class="entry-notes">${item.notes}</div>` : ''}
                     </div>
                 `;
             });
@@ -70,14 +133,39 @@
 
         function addEntry() {
             const name = document.getElementById('foodName').value;
-            const calories = document.getElementById('calories').value;
-            const type = document.getElementById('mealType').value;
+            if (!name) {
+                alert("Please enter a food name");
+                return;
+            }
 
-            if (name && calories) {
-                diary.push({ name, calories, type });
+            const calories = document.getElementById('calories').value || 0;
+            const type = document.getElementById('mealType').value;
+            const severity = document.getElementById('severity').value;
+            const notes = document.getElementById('notes').value;
+            
+            const checkboxes = document.querySelectorAll('#symptomBox input:checked');
+            let symptoms = Array.from(checkboxes).map(cb => cb.value);
+
+            diary.push({ name, calories, type, symptoms, severity, notes });
+            updateUI();
+            
+            document.getElementById('foodName').value = '';
+            document.getElementById('calories').value = '0';
+            document.getElementById('severity').value = '1';
+            document.getElementById('sevValue').innerText = '1';
+            document.getElementById('notes').value = '';
+            document.querySelectorAll('#symptomBox input').forEach(cb => cb.checked = false);
+        }
+
+        function deleteEntry(index) {
+            diary.splice(index, 1);
+            updateUI();
+        }
+
+        function clearAll() {
+            if (confirm("Delete all data? This cannot be undone.")) {
+                diary = [];
                 updateUI();
-                document.getElementById('foodName').value = '';
-                document.getElementById('calories').value = '';
             }
         }
 
