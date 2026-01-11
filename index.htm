@@ -118,6 +118,7 @@
                         <div class="entry-top">
                             <div>
                                 <span class="entry-name">${item.name}</span><br>
+                                <span class="entry-meta">${item.logDate}</span><br>
                                 <span class="entry-meta">${item.type} • ${item.calories} kcal</span>
                             </div>
                             <button class="del-btn" onclick="deleteEntry(${index})">Delete</button>
@@ -138,15 +139,15 @@
                 return;
             }
 
+            const logDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-').toUpperCase();
             const calories = document.getElementById('calories').value || 0;
             const type = document.getElementById('mealType').value;
             const severity = document.getElementById('severity').value;
-            const notes = document.getElementById('notes').value;
-            
+            const notes = document.getElementById('notes').value;            
             const checkboxes = document.querySelectorAll('#symptomBox input:checked');
             let symptoms = Array.from(checkboxes).map(cb => cb.value);
-
-            diary.push({ name, calories, type, symptoms, severity, notes });
+            
+            diary.push({ name, logDate, calories, type, symptoms, severity, notes });
             updateUI();
             
             document.getElementById('foodName').value = '';
@@ -155,6 +156,7 @@
             document.getElementById('sevValue').innerText = '1';
             document.getElementById('notes').value = '';
             document.querySelectorAll('#symptomBox input').forEach(cb => cb.checked = false);
+
         }
 
         function deleteEntry(index) {
